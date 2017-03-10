@@ -1,5 +1,7 @@
 package ie.gmit.sw.controllers;
 
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
@@ -12,8 +14,9 @@ import ie.gmit.sw.DAO.DAO;
 public class Controllers 
 {
   private DAO dao;
-  @RequestMapping(value = "/*")
-  public String helloWorld(Model model) {
+  @RequestMapping(value = "/*")//return index page
+  public String helloWorld(Model model) 
+  {
     model.addAttribute("test", "Hello World!");
     return "helloWorld";
   }
@@ -22,15 +25,15 @@ public class Controllers
   public String checkRoom(Model model,HttpServletRequest request)
   {
 	 String roomID="";
-	 String[] data = null;
+	 ArrayList<String> data = new ArrayList<String>();
 	 
 	 roomID=request.getRequestURI().toString();
-	 roomID=roomID.substring(roomID.lastIndexOf("/")+1);
+	 roomID=roomID.substring(roomID.lastIndexOf("/")+1); //getting the id of the room from url
 	 model.addAttribute("greeting",roomID);
 	 
-	 data=dao.getData(roomID);
+	 data=dao.getData(roomID); //getting rs
 	 
-	 if(data==null)
+	 if(data.size()==0) //if empty room doesn't exist
 	 {
 		 model.addAttribute("greeting",roomID);
 		 return "notFound"; //return not found page
@@ -38,6 +41,6 @@ public class Controllers
 	 
 	 return "helloWorld";
   }
-  
-  
+
+
 }
