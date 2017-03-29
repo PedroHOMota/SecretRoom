@@ -4,10 +4,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Lab 7 Spring MVC</title>
+<title>$</title>
 </head>
 <body>
-	<h1>${g}</h1>
-	
+
 </body>
 </html>
