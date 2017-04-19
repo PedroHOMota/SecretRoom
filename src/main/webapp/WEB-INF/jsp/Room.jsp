@@ -4,9 +4,10 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>$</title>
+<title>Files</title>
 </head>
 <body>
-
+<h1>Files: </h1>
+<p>${g}</p>
 </body>
 </html>

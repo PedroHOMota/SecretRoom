@@ -2,6 +2,7 @@ package ie.gmit.sw.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,12 +13,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ie.gmit.sw.DAO.DAO;
+import ie.gmit.sw.Service.Service;
 
 @Controller
 public class Controllers 
 {
  
   private DAO dao= new DAO();
+  private Service srv=new Service();
   
   @RequestMapping(value = "/*")//return index page
   public String helloWorld(Model model) 
@@ -67,8 +70,12 @@ public class Controllers
   public String createRoom(Model model)
   {
 	  System.out.println("entrou");
-	  int roomID = dao.CreateRoomBeta(); 
-	  dao.CreateRoomBeta(); 
+	  
+	  int roomID = srv.CreateRoomBeta(); 
+	  
+	  if(roomID==-1)
+		  return "redirect:/helloWorld";
+
 	  String a = String.valueOf(roomID);
 
 	  return "redirect:/r/"+a; 
@@ -77,7 +84,7 @@ public class Controllers
   public String checkRoom(String roomID)
   {
 	 
-	 File[] listOfFiles=dao.getRoomBeta(roomID);
+	 /*File[] listOfFiles=dao.getRoomBeta(roomID);
 	 String tst="";
 	 for (int i = 0; i < listOfFiles.length; i++) 
 	 {
@@ -85,12 +92,14 @@ public class Controllers
 	 }
 	 System.out.println("chegou");
 	 
-	 return tst;
+	 return tst;*/
+	  return "";
+			
 	
   }
   
   @RequestMapping(value = "/r/*")
-  public String checkRoom(Model model,HttpServletRequest request)
+  public String checkRoom(Model model,HttpServletRequest request) throws SQLException
   {
 	 String roomID="";
 	 //ArrayList<String> data = new ArrayList<String>();
@@ -105,14 +114,15 @@ public class Controllers
 	 model.addAttribute("greeting",roomID);
 	 
 	 //data=dao.getFiles(roomID); //getting rs
-	 File[] listOfFiles=dao.getRoomBeta(roomID);
+	 ArrayList<String> listOfFiles=dao.getAllFiles(roomID);
 	 String tst="<h1>Files:</h1>";
-	 for (int i = 0; i < listOfFiles.length; i++) 
+	 for (int i = 0; i < listOfFiles.size(); i++) 
 	 {
-		tst+="<p>"+listOfFiles[i].getPath()+"</p>\n";
+		 
+		tst+="<p>"+listOfFiles.get(i)+"</p>\n";
 	 }
 	 model.addAttribute("g",tst);
 	 	 
-	 return "helloWorld";
+	 return "Room";
   }
 }

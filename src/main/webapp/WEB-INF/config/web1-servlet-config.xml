@@ -7,12 +7,12 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
 
-	<mvc:annotation-driven/>
+	
 	<context:component-scan base-package="ie.gmit.sw.controllers"></context:component-scan>
 
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/jsp/"></property>
 		<property name="suffix" value=".jsp"></property>
 	</bean>
-
+	
 </beans>

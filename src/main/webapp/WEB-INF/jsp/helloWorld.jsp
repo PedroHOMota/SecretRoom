@@ -7,7 +7,7 @@
 <title>Lab 7 Spring MVC</title>
 </head>
 <body>
-	<h1>${g}</h1>
+	<h1>error</h1>
 	
 </body>
 </html>

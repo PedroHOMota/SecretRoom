@@ -1,43 +1,44 @@
 package ie.gmit.sw.DAO;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Random;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.spi.DirectoryManager;
 import javax.sql.DataSource;
 
-import org.apache.taglibs.standard.extra.spath.Path;
-import org.springframework.stereotype.Repository;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 
 public class DAO
 {
-	private DataSource mysqlDS;
+	private MysqlDataSource mysqlDS;
 	
-	/*public DAO() throws NamingException
+	public DAO()
 	{
-		Context context = new InitialContext();
-		String ds = "ds path";
-		mysqlDS = (DataSource) context.lookup(ds);
+		//Context context;
+		try {
+			//context = new InitialContext();
+			//String ds = "jdbc/secretroom";
+			mysqlDS = new MysqlDataSource();
+			mysqlDS.setURL("");
+			mysqlDS.setUser("");
+			mysqlDS.setPassword("");
+			System.out.println("configurou");
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-	}*/
+		
+	}
 	
 	
 	//Method used to consult if the rooms exists
@@ -54,7 +55,6 @@ public class DAO
 			while(rs.next())
 			{
 				data.add(rs.getString("fileName"));
-				data.add(rs.getString("fileLink"));
 			}
 		
 		}catch(Exception e){}
@@ -91,19 +91,38 @@ public class DAO
 		try
 		{
 			Connection con = mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("INSERT "+roomID+" "+name+" INTO files");
+			PreparedStatement stmt = con.prepareStatement("INSERT "+file+" "+name+" "+Integer.parseInt(roomID)+" "+" INTO files");
 			ResultSet rs = stmt.executeQuery();
 			
 				
-		}catch(Exception e){}
+		}catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+			return false;
+		}
 		
-		//Saving the file to the room's folder on server
-		FileOutputStream Fstream = new FileOutputStream("//"+roomID+"//"+name);
-		Fstream.write(file);
-		Fstream.close();
+
 		return true; 
 	}
 	
+	public byte[] getFile(String fileName,String roomID) throws IOException, SQLException
+	{
+		ResultSet rs = null;
+		try
+		{
+			Connection con = mysqlDS.getConnection();
+			PreparedStatement stmt = con.prepareStatement("Select "+fileName+" From Files f Where f.RID Like "+roomID);
+			rs = stmt.executeQuery();
+			
+		}catch(Exception e)
+		{
+			return null;
+		}
+		
+		return rs.getBytes(0);
+				 
+	}
+	//OLD
 	public byte[] getFile(String fileName) throws IOException
 	{
 		FileInputStream fStream = new FileInputStream(fileName);
@@ -114,36 +133,47 @@ public class DAO
 		return file;
 	}
 	
-	public boolean CreateRoom()
+	public boolean CreateRoom(int roomID)
 	{
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-		
+		//DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//Date date = new Date();
+		//System.out.println(dateFormat.format(date));
 		try
 		{
 			Connection con=mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("SELECT * FROM Rooms r WHERE r.expiredate < "+dateFormat.format(date));
+			PreparedStatement stmt = con.prepareStatement("Insert INTO Room(RID,ExpDate) Values("+roomID+",now())");
+			stmt.executeUpdate();
 		}
-		catch(Exception e){}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+			return false;
+		}
 		
 		return true;
 	}
 	
-	public int CreateRoomBeta()
+	public ArrayList<String> getAllFiles(String roomID) throws SQLException
 	{
-		Random a=new Random(Instant.now().toEpochMilli());
-		int aa=a.nextInt();
-		new File("\\"+aa).mkdir();
+		ArrayList<String> files=new ArrayList<String>();
+		ResultSet rs=null;
+		try
+		{
+			Connection con=mysqlDS.getConnection();
+			PreparedStatement stmt = con.prepareStatement("SELECT Name FROM Files f WHERE f.RID LIKE "+roomID);
+			rs=stmt.executeQuery();
+		}
+		catch(Exception e)
+		{
+			return null;
+		}
+		String line="";
+		while(rs.next())
+		{
+			files.add(rs.getString(0));
+		}
 		
-		return aa;
+		return files;
 	}
-	public File[] getRoomBeta(String roomID)
-	{
-			File folder = new File("\\"+roomID);
-			if(!folder.exists())
-				return null;
-			File[] listOfFiles = folder.listFiles();
-			
-			return listOfFiles;
-	}
+
 }
