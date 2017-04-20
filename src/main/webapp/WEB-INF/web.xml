@@ -12,12 +12,14 @@
 			<param-name>contextConfigLocation</param-name>
      		<param-value>/WEB-INF/config/web1-servlet-config.xml</param-value>
 	  	</init-param>
+	  	
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>web1Servlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
+	
 
 	
 	

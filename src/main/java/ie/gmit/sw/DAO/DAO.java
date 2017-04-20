@@ -2,6 +2,7 @@ package ie.gmit.sw.DAO;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +13,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.sql.DataSource;
+import javax.sql.rowset.serial.SerialBlob;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import com.mysql.jdbc.Blob;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 
@@ -27,9 +32,7 @@ public class DAO
 			//context = new InitialContext();
 			//String ds = "jdbc/secretroom";
 			mysqlDS = new MysqlDataSource();
-			mysqlDS.setURL("");
-			mysqlDS.setUser("");
-			mysqlDS.setPassword("");
+			//Db config hidden
 			System.out.println("configurou");
 			
 		} catch (Exception e) {
@@ -86,18 +89,22 @@ public class DAO
 		//Delete folder than delete the entry on the db
 	}
 	
-	public boolean SaveFile(byte[] file, String name, String roomID) throws IOException
+	public boolean SaveFile(InputStream file, String name, String roomID) throws IOException
 	{
+		System.out.println("entrou db");
 		try
 		{
 			Connection con = mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("INSERT "+file+" "+name+" "+Integer.parseInt(roomID)+" "+" INTO files");
-			ResultSet rs = stmt.executeQuery();
+			PreparedStatement stmt = con.prepareStatement("INSERT INTO files Values(?,?,?)");
+			stmt.setBinaryStream(1, file);;
+			stmt.setString(2, name);
+			stmt.setInt(3, Integer.parseInt(roomID));
+			stmt.executeUpdate();
 			
 				
 		}catch(Exception e)
 		{
-			System.out.println(e.getMessage());
+			System.out.println("Exception: "+e.getMessage());
 			return false;
 		}
 		
@@ -108,29 +115,29 @@ public class DAO
 	public byte[] getFile(String fileName,String roomID) throws IOException, SQLException
 	{
 		ResultSet rs = null;
+		
 		try
 		{
 			Connection con = mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("Select "+fileName+" From Files f Where f.RID Like "+roomID);
+			//PreparedStatement stmt = con.prepareStatement("SELECT file FROM Files f WHERE f.RID LIKE ? AND f.Name Like ?");
+			PreparedStatement stmt = con.prepareStatement("select file from files f where f.name like \""+fileName+"\" and f.rid like "+roomID);
+			System.out.println(stmt.toString());		
+			//stmt.setInt(2, Integer.parseInt(roomID));
+			//stmt.setString(, fileName);
 			rs = stmt.executeQuery();
-			
+			rs.next();
+
+			byte[] file=rs.getBytes("file");
+			System.out.println("Tamanho "+file.length);
+			return file;
 		}catch(Exception e)
 		{
+			System.out.println("Error DAO: "+e.getMessage());
 			return null;
 		}
+				
 		
-		return rs.getBytes(0);
 				 
-	}
-	//OLD
-	public byte[] getFile(String fileName) throws IOException
-	{
-		FileInputStream fStream = new FileInputStream(fileName);
-		
-		byte[] file = new byte[fStream.available()];
-		fStream.read(file);
-		fStream.close();
-		return file;
 	}
 	
 	public boolean CreateRoom(int roomID)
@@ -146,6 +153,7 @@ public class DAO
 		}
 		catch(Exception e)
 		{
+			System.out.println("Retornou falso");
 			System.out.println(e.getMessage());
 			return false;
 		}
@@ -170,7 +178,7 @@ public class DAO
 		String line="";
 		while(rs.next())
 		{
-			files.add(rs.getString(0));
+			files.add(rs.getString(1));
 		}
 		
 		return files;

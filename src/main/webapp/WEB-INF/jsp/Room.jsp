@@ -7,7 +7,13 @@
 <title>Files</title>
 </head>
 <body>
-<h1>Files: </h1>
-<p>${g}</p>
+	<h1>Files: </h1>
+	<p>${g}</p>
+	<form method="POST" enctype="multipart/form-data" action="/savefile">
+			<table>
+				<tr><td><input type="file" name="file" /></td></tr>
+				<tr><td></td><td><input type="submit" value="Upload" /></td></tr>
+			</table>
+		</form>
 </body>
 </html>
