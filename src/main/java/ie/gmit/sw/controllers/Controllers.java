@@ -98,11 +98,12 @@ public class Controllers
 	 
 	 //data=dao.getFiles(roomID); //getting rs
 	 ArrayList<String> listOfFiles=dao.getAllFiles(roomID);
-	 String tst="<h1>Files:</h1>";
+	 String tst="<h1>  </h1>";
 	 for (int i = 0; i < listOfFiles.size(); i++) 
 	 {
-		 
-		tst+="<a href=\"/r/"+roomID+"/"+listOfFiles.get(i)+"\">"+listOfFiles.get(i)+"</a>\n";
+		tst+="<tr class=\"row\"><td style=\"float:left\"><a href=\"/r/"+roomID+"/"+listOfFiles.get(i)+"\">"+listOfFiles.get(i)+"</a></td></tr>";
+	
+		//tst+="<a href=\"/r/"+roomID+"/"+listOfFiles.get(i)+"\">"+listOfFiles.get(i)+"</a>\n";
 	 }
 	 model.addAttribute("g",tst);
 	 	 
@@ -113,7 +114,7 @@ public class Controllers
   public String SaveFile(@RequestParam(value="file", required=true) MultipartFile file) throws IOException
   {
 	 if(srv.SaveFile(file, file.getOriginalFilename(), roomID))
-		  return "helloWorld";
-	  return "redirect:/r/"+roomID;
+		  return "redirect:/r/"+roomID;
+	 return "helloWorld";
   }
 }

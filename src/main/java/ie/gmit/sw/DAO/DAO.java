@@ -27,13 +27,10 @@ public class DAO
 	
 	public DAO()
 	{
-		//Context context;
 		try {
-			//context = new InitialContext();
-			//String ds = "jdbc/secretroom";
 			mysqlDS = new MysqlDataSource();
-			//Db config hidden
-			System.out.println("configurou");
+			
+
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
