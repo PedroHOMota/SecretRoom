@@ -43,7 +43,12 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-body" id="modalContent" >
-				  <p>Some text in the modal.</p>
+					  <form method="POST" enctype="multipart/form-data" action="/savefile">
+						<table>
+							<tr><td><input type="file" name="file" class="btn btn-lg btn-default"/></td>
+							<td><input type="submit" value="Upload" class="btn btn-lg btn-default" style="float:right;"/></td></tr>
+						</table>
+					 </form>
 				</div>
 			</div>
 		</div>
