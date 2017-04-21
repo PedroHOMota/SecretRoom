@@ -1,31 +1,25 @@
 package ie.gmit.sw.controllers;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import ie.gmit.sw.DAO.DAO;
+
 import ie.gmit.sw.Service.Service;
 
 @Controller
@@ -33,8 +27,7 @@ import ie.gmit.sw.Service.Service;
 public class Controllers 
 {
  
-  String roomID="";
-  private DAO dao= new DAO();
+  private String roomID="";
   private Service srv=new Service();
   
   @RequestMapping(value = "/*")//return index page
@@ -56,27 +49,25 @@ public class Controllers
 	  response.setContentType("application/octet-stream");
       response.addHeader("Content-Disposition", "attachment; filename="+fileName);
       
-      byte[] file =srv.getFile(roomID, fileName);
+      byte[] file =srv.GetFile(roomID, fileName);
       try
       {
     	  response.getOutputStream().write(file);
-          
-          //Files.copy
           response.getOutputStream().flush();
       } 
       catch (Exception ex) 
       {
           System.out.println(ex.getMessage());
-      }//dao.getFile(fileName);
+      }
   }
 
   @RequestMapping(value="/createRoom")
-  public String createRoom(Model model)
+  public String CreateRoom(Model model)
   {
 	  int roomID = srv.CreateRoomBeta(); 
 	  
 	  if(roomID==-1)
-		  return "redirect:/helloWorld";
+		  return "redirect:/";
 
 	  String a = String.valueOf(roomID);
 
@@ -87,34 +78,55 @@ public class Controllers
   @RequestMapping(value = "/r/*", method = RequestMethod.GET)
   public String CheckRoom(Model model,HttpServletRequest request) throws SQLException
   {
-	 //ArrayList<String> data = new ArrayList<String>();
 	 roomID=request.getRequestURI().toString();
 	 roomID=roomID.substring(roomID.lastIndexOf("/")+1); //getting the id of the room from url
 	 
 	 if(roomID=="")
-		 return "helloWorld";
-	 
-	 model.addAttribute("greeting",roomID);
-	 
-	 //data=dao.getFiles(roomID); //getting rs
-	 ArrayList<String> listOfFiles=dao.getAllFiles(roomID);
+		 return "redirect:/";
+	  
+	 ArrayList<String> listOfFiles=srv.GetAllFilesName(roomID);
 	 String tst="<h1>  </h1>";
 	 for (int i = 0; i < listOfFiles.size(); i++) 
 	 {
 		tst+="<tr class=\"row\"><td style=\"float:left\"><a href=\"/r/"+roomID+"/"+listOfFiles.get(i)+"\">"+listOfFiles.get(i)+"</a></td></tr>";
-	
-		//tst+="<a href=\"/r/"+roomID+"/"+listOfFiles.get(i)+"\">"+listOfFiles.get(i)+"</a>\n";
 	 }
-	 model.addAttribute("g",tst);
+	 model.addAttribute("files",tst);
 	 	 
 	 return "Room";
   }
   
   @RequestMapping(value = "/savefile", method = RequestMethod.POST)
-  public String SaveFile(@RequestParam(value="file", required=true) MultipartFile file) throws IOException
+  public String SaveFile(@RequestParam(value="file", required=true) MultipartFile file, Model model) throws IOException
   {
+	 //If file is succesufully saved, return the user to room's page
+	 //If fails return showing erro message
 	 if(srv.SaveFile(file, file.getOriginalFilename(), roomID))
 		  return "redirect:/r/"+roomID;
-	 return "helloWorld";
+	 
+	 model.addAttribute("error", "Could not upload file. File is larger than 100mb or already exists");
+	 return "redirect:/r/"+roomID;
   }
+  
+  @RequestMapping(value = "/savemessage", method = RequestMethod.POST)
+  public void SaveMessage(String msg, String user) throws IOException
+  {
+	 srv.SaveMessage(msg, user, roomID); 
+	 
+	 //model.addAttribute("error", "Could not upload file. File is larger than 100mb or already exists");
+
+  }
+  
+  @ResponseBody
+  @RequestMapping(value = "/getmessage", method = RequestMethod.POST)
+  public String GetMessage() throws IOException, SQLException
+  {
+	 System.out.println("entrou no get");
+	 Map<String, String> a =srv.GetMessages(roomID);
+	 System.out.println(a.get("Pedro"));
+	 ObjectMapper mapper = new ObjectMapper();
+	 String rsp=mapper.writeValueAsString(a);
+	 System.out.println(rsp.toString());
+	 return rsp;
+  }
+  
 }

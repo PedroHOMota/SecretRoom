@@ -1,23 +1,15 @@
 package ie.gmit.sw.DAO;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.sql.DataSource;
-import javax.sql.rowset.serial.SerialBlob;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import com.mysql.jdbc.Blob;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 
@@ -40,52 +32,6 @@ public class DAO
 		
 	}
 	
-	
-	//Method used to consult if the rooms exists
-	//if it does return data
-	public ArrayList<String> getFiles(String roomID)
-	{
-		ArrayList<String> data = new ArrayList<String>();
-		try
-		{
-			Connection con = mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("SELECT * FROM rooms r Where r.id LIKE "+roomID);
-			ResultSet rs = stmt.executeQuery();
-				
-			while(rs.next())
-			{
-				data.add(rs.getString("fileName"));
-			}
-		
-		}catch(Exception e){}
-		return data;
-	}
-	
-	//Methhod to delete expired rooms
-	public void Delete()
-	{	
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-		
-		try
-		{
-			Connection con=mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("SELECT * FROM Rooms r WHERE r.expiredate < "+dateFormat.format(date));
-			ResultSet rs = stmt.executeQuery();
-			
-			while(rs.next())
-			{
-				String id=rs.getString("roomID");
-				//Files.delete("//Rooms//"+id);
-				stmt = con.prepareStatement("DELETE * FROM Rooms r, Files f WHERE f.RID = "+id+" AND r.ID = "+id);
-			}
-			
-		}
-		catch(Exception e){}
-		//Check if which rooms are expired
-		//Delete folder than delete the entry on the db
-	}
-	
 	public boolean SaveFile(InputStream file, String name, String roomID) throws IOException
 	{
 		System.out.println("entrou db");
@@ -97,7 +43,6 @@ public class DAO
 			stmt.setString(2, name);
 			stmt.setInt(3, Integer.parseInt(roomID));
 			stmt.executeUpdate();
-			
 				
 		}catch(Exception e)
 		{
@@ -109,23 +54,19 @@ public class DAO
 		return true; 
 	}
 	
-	public byte[] getFile(String fileName,String roomID) throws IOException, SQLException
+	public byte[] GetFile(String fileName,String roomID) throws IOException, SQLException
 	{
 		ResultSet rs = null;
 		
 		try
 		{
 			Connection con = mysqlDS.getConnection();
-			//PreparedStatement stmt = con.prepareStatement("SELECT file FROM Files f WHERE f.RID LIKE ? AND f.Name Like ?");
 			PreparedStatement stmt = con.prepareStatement("select file from files f where f.name like \""+fileName+"\" and f.rid like "+roomID);
 			System.out.println(stmt.toString());		
-			//stmt.setInt(2, Integer.parseInt(roomID));
-			//stmt.setString(, fileName);
 			rs = stmt.executeQuery();
 			rs.next();
 
 			byte[] file=rs.getBytes("file");
-			System.out.println("Tamanho "+file.length);
 			return file;
 		}catch(Exception e)
 		{
@@ -139,18 +80,14 @@ public class DAO
 	
 	public boolean CreateRoom(int roomID)
 	{
-		//DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		//Date date = new Date();
-		//System.out.println(dateFormat.format(date));
 		try
 		{
 			Connection con=mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("Insert INTO Room(RID,ExpDate) Values("+roomID+",now())");
+			PreparedStatement stmt = con.prepareStatement("Insert INTO Room(RID,ExpDate) Values("+roomID+",now()+Interval 2 Day)");
 			stmt.executeUpdate();
 		}
 		catch(Exception e)
 		{
-			System.out.println("Retornou falso");
 			System.out.println(e.getMessage());
 			return false;
 		}
@@ -158,7 +95,7 @@ public class DAO
 		return true;
 	}
 	
-	public ArrayList<String> getAllFiles(String roomID) throws SQLException
+	public ArrayList<String> GetAllFilesName(String roomID) throws SQLException
 	{
 		ArrayList<String> files=new ArrayList<String>();
 		ResultSet rs=null;
@@ -172,7 +109,6 @@ public class DAO
 		{
 			return null;
 		}
-		String line="";
 		while(rs.next())
 		{
 			files.add(rs.getString(1));
@@ -181,4 +117,39 @@ public class DAO
 		return files;
 	}
 
+	public boolean SaveMessage(String roomID,String message,String name)
+	{
+		System.out.println("estrouuuu no savemsg");
+		try
+		{
+			Connection con=mysqlDS.getConnection();
+			PreparedStatement stmt = con.prepareStatement("INSERT INTO messages VALUES(\""+message+"\","+roomID+",\""+name+"\")");
+			stmt.executeUpdate();
+			return true;
+		}catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
+		return false;
+	}
+	
+	public Map<String, String> GetAllMessages(String roomID) throws SQLException
+	{
+		Map<String, String> msgs = new HashMap<String, String>();
+		ResultSet rs = null;
+		try
+		{
+			Connection con=mysqlDS.getConnection();
+			PreparedStatement stmt = con.prepareStatement("Select message, name FROM messages m Where m.RID Like "+roomID);
+			rs=stmt.executeQuery();
+		}catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
+		while(rs.next())
+		{
+			msgs.put(rs.getString("name"), rs.getString("message"));
+		}
+		return msgs;
+	}
 }

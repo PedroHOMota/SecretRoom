@@ -44,7 +44,9 @@
               <form action="/createRoom">
 				<input type="submit" value="Create Room" class="btn btn-lg btn-default">
 			  </form>
-            </p>
+			</p>
+			<p class="lead"> All files upload are user entire responsibility</p>
+            
           </div>
        
         </div>
