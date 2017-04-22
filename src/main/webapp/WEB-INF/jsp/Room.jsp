@@ -75,10 +75,39 @@
 			margin: 5px 10px 0;
 			background-color: blue;
 		}
+		.chat-form 
+		{
+			display: flex;
+			align-items: flex-start;
+			margin-top: 20px;
+		}
+		#txtMSG
+		{
+			width:75%;
+			height: 50%;
+			border: 2px solid #eee;
+			border-radius: 3px;
+			resize:none;
+			padding: 10px;
+			font-size:18px;
+			color: #999;
+		}
+		.chat-form button
+		{
+			background: #1ddced;
+			padding: 5px;
+			font-size: 25px;
+			color: #fff;
+			border:none;
+			margin: 0 10px;
+			border-radius: 3px;
+			box-shadow: 0 3px 0 #0eb2c1;
+			cursor: pointer;
+		}
 	</style>
   </head>
 
-  <body>
+  <body onload='setupChat()'>
 	
 	<div class="container">
 	  <div class="modal fade" id="myModal" role="dialog">
@@ -104,10 +133,10 @@
 				
 			</div>
 		
-			<div class="chat-from">
+			<div class="chat-form">
 				<textarea id="txtMSG" style="color:black"></textarea>
-				<!--button onclick="SendMessage();">Send</button-->
-				<button onclick="UpdateChat();">aaaa</button>
+				<button onclick="SendMessage();">Send</button>
+				<button onclick="ChangeName();">Change Name</button>
 			</div>
 		</div>
 			
@@ -128,25 +157,41 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 	<script>
+		allowChange=true;
+		usr="";
+		
+		function setupChat() 
+		{
+		      var updateInterval = 1000;
+		      window.setInterval(UpdateChat,updateInterval);
+		      user=document.cookie;
+			  usr=user.substring(user.indexOf("=")+1,user.length-user.lastIndexOf(";"));
+			  if(usr=="")
+				  {
+				  	usr=Math.floor((Math.random() * 100000) + 1);
+				  }
+				
+		}
+		
 		function SendMessage()
 		{
 			var msg="";
 			msg=$("#txtMSG").val();
-			
 			$.ajax({
 				type : "POST",
 				url : '/savemessage',
-				data: {"msg":msg,"user":"Pedro"}
-				
+				data: {"msg":msg,"user":usr,"date":new Date().toISOString().slice(0, 19).replace('T', ' ')}
 				});
 		}
 		
 		function UpdateChat()
 		{
-			alert("entrou");
+			element = document.getElementById("chatlogs");
+			msgCount =element.getElementsByClassName('chat-message').length.toString();
 			$.ajax({
 				type : "POST",
 				url : '/getmessage',
+				data:{"msgCount":new Date().toISOString().slice(0, 19).replace('T', ' ')},
 				dataType: "json",
 		        contentType: "application/json;charset=utf-8",
 		        success: function(data)
@@ -161,17 +206,26 @@
 			var json = $.parseJSON(JSON.stringify(data));
 			for(info in json)
 				{
-					//alert(info); //name
-					//alert(json[info]);
-					document.getElementById("chatlogs").innerHTML +=
-					"<div class=\"chat\">"+
-					"<div class=\"user-name\"></div>"+
-					"<p class=\"chat-message\">"+json[info]+"</p></div>";
+					for(data in json[info])
+					{
+						document.getElementById("chatlogs").innerHTML +=
+							"<div class=\"chat\">"+
+							"<div class=\"user-name\">"+data+"</div>" +
+							"<p class=\"chat-message\">"+json[info][data]+"</p></div>";
+					}
+					
 				}
 		}
 		
 		function ChangeName()
-		{}
+		{
+			if(allowChange)
+				{
+					allowChange=false;
+					name=$("#txtMSG").val();
+					document.cookie = "username="+name;
+				}
+		}
 	</script>
   </body>
 </html>

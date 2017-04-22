@@ -2,6 +2,7 @@ package ie.gmit.sw.controllers;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -85,6 +86,7 @@ public class Controllers
 		 return "redirect:/";
 	  
 	 ArrayList<String> listOfFiles=srv.GetAllFilesName(roomID);
+	 System.out.println(listOfFiles.size());
 	 String tst="<h1>  </h1>";
 	 for (int i = 0; i < listOfFiles.size(); i++) 
 	 {
@@ -108,24 +110,30 @@ public class Controllers
   }
   
   @RequestMapping(value = "/savemessage", method = RequestMethod.POST)
-  public void SaveMessage(String msg, String user) throws IOException
+  public void SaveMessage(String msg, String user, String date) throws IOException, ParseException
   {
-	 srv.SaveMessage(msg, user, roomID); 
-	 
-	 //model.addAttribute("error", "Could not upload file. File is larger than 100mb or already exists");
-
+	 System.out.println(date);
+	 srv.SaveMessage(msg, user, roomID, date); 
+	
   }
   
   @ResponseBody
   @RequestMapping(value = "/getmessage", method = RequestMethod.POST)
-  public String GetMessage() throws IOException, SQLException
+  public String GetMessage(@RequestBody String msgCount) throws IOException, SQLException, ParseException
   {
-	 System.out.println("entrou no get");
-	 Map<String, String> a =srv.GetMessages(roomID);
-	 System.out.println(a.get("Pedro"));
+	 msgCount=msgCount.substring(9);
+	 System.out.println(msgCount);
+	 msgCount=msgCount.replace("+", " ");
+	 msgCount=msgCount.replace("%3A", ":");
+	 System.out.println(msgCount);
+	 ArrayList<Map<String, String>> msgs = srv.GetMessages(roomID,msgCount);
+	
+	 if(msgs==null)
+		 return "";
+	 System.out.println(msgs.size());
 	 ObjectMapper mapper = new ObjectMapper();
-	 String rsp=mapper.writeValueAsString(a);
-	 System.out.println(rsp.toString());
+	 String rsp=mapper.writeValueAsString(msgs);
+	 System.out.println(rsp);
 	 return rsp;
   }
   

@@ -1,7 +1,10 @@
 package ie.gmit.sw.Service;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Map;
@@ -55,14 +58,19 @@ public class Service {
 		return dao.GetAllFilesName(roomID);
 	}
 	
-	public void SaveMessage(String message,String name, String roomID)
+	public void SaveMessage(String message,String name, String roomID,String date) throws ParseException
 	{
-		System.out.println("entrou service");
-		dao.SaveMessage(roomID, message, name);
+		dao.SaveMessage(roomID, message, name,date);
 	}
 	
-	public Map<String, String> GetMessages(String roomID) throws SQLException
+	public ArrayList<Map<String, String>> GetMessages(String roomID,String date) throws SQLException, ParseException
 	{
-		return dao.GetAllMessages(roomID);
+		ArrayList<Map<String, String>> a= dao.GetAllMessages(roomID, date);
+		for(Map<String, String> item : a)
+		{
+			System.out.println(item.values().toString());
+		}
+		
+		return a;
 	}
 }

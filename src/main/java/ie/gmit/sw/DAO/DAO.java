@@ -3,11 +3,13 @@ package ie.gmit.sw.DAO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
@@ -21,7 +23,9 @@ public class DAO
 	{
 		try {
 			mysqlDS = new MysqlDataSource();
-			
+			mysqlDS.setURL("jdbc:mysql://localhost:3306/secretroom");
+			mysqlDS.setUser("root");
+			mysqlDS.setPassword("3110");
 
 			
 		} catch (Exception e) {
@@ -117,13 +121,14 @@ public class DAO
 		return files;
 	}
 
-	public boolean SaveMessage(String roomID,String message,String name)
+	public boolean SaveMessage(String roomID,String message,String name, String date)
 	{
-		System.out.println("estrouuuu no savemsg");
 		try
 		{
+			//System.out.println("INSERT INTO messages VALUES(\""+message+"\","+roomID+",\""+name+"\" "+date.toString());
 			Connection con=mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("INSERT INTO messages VALUES(\""+message+"\","+roomID+",\""+name+"\")");
+			PreparedStatement stmt = con.prepareStatement("INSERT INTO messages VALUES(\""+message+"\","+roomID+",\""+name+"\",\""+date+"\")");
+			//stmt.setDate(1, date);
 			stmt.executeUpdate();
 			return true;
 		}catch(Exception e)
@@ -133,14 +138,16 @@ public class DAO
 		return false;
 	}
 	
-	public Map<String, String> GetAllMessages(String roomID) throws SQLException
+	public ArrayList<Map<String, String>> GetAllMessages(String roomID, String date) throws SQLException
 	{
-		Map<String, String> msgs = new HashMap<String, String>();
+		
 		ResultSet rs = null;
+		ArrayList<Map<String, String>> listMsgs = new ArrayList<Map<String, String>>();
 		try
 		{
 			Connection con=mysqlDS.getConnection();
-			PreparedStatement stmt = con.prepareStatement("Select message, name FROM messages m Where m.RID Like "+roomID);
+			
+			PreparedStatement stmt = con.prepareStatement("Select message, name FROM messages m Where m.RID Like "+roomID+" AND m.Date < \""+date+"\"");
 			rs=stmt.executeQuery();
 		}catch(Exception e)
 		{
@@ -148,8 +155,12 @@ public class DAO
 		}
 		while(rs.next())
 		{
+			Map<String, String> msgs = new HashMap<String, String>();
+			
+			System.out.println(rs.getString("name")+" "+rs.getString("message"));
 			msgs.put(rs.getString("name"), rs.getString("message"));
+			listMsgs.add(msgs);
 		}
-		return msgs;
+		return listMsgs;
 	}
 }
