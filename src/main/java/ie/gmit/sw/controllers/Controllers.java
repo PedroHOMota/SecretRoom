@@ -90,9 +90,10 @@ public class Controllers
 	 String tst="<h1>  </h1>";
 	 for (int i = 0; i < listOfFiles.size(); i++) 
 	 {
-		tst+="<tr class=\"row\"><td style=\"float:left\"><a href=\"/r/"+roomID+"/"+listOfFiles.get(i)+"\">"+listOfFiles.get(i)+"</a></td></tr>";
+		tst+="<tr><td style=\"float:left\"><a href=\"/r/"+roomID+"/"+listOfFiles.get(i)+"\">"+listOfFiles.get(i)+"</a></td></tr>";
 	 }
 	 model.addAttribute("files",tst);
+	 model.addAttribute("id", roomID);
 	 	 
 	 return "Room";
   }

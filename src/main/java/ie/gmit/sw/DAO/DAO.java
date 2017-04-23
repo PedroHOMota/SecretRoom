@@ -147,7 +147,7 @@ public class DAO
 		{
 			Connection con=mysqlDS.getConnection();
 			
-			PreparedStatement stmt = con.prepareStatement("Select message, name FROM messages m Where m.RID Like "+roomID+" AND m.Date < \""+date+"\"");
+			PreparedStatement stmt = con.prepareStatement("Select message, name FROM messages m Where m.RID Like "+roomID+" AND m.Date > \""+date+"\"");
 			rs=stmt.executeQuery();
 		}catch(Exception e)
 		{

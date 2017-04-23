@@ -16,10 +16,7 @@
 	<link href="https://getbootstrap.com/examples/cover/cover.css" rel="stylesheet">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<style>
-	.row 
-	{
-		border-bottom:1px solid white;
-	}
+	
 	#modalContent 
 	{
 		border-color: linear-gradient(#333333,#222222); 
@@ -33,77 +30,93 @@
 		background-color:transparent; 
 		border-color:white;
 	}
-	
+	table tbody::-webkit-scrollbar 
+	{
+		width:10px;
+	}
+	table tbody::-webkit-scrollbar-thumb
+	{
+		border-radius: 6px;
+		background: rgba(0,0,0,.1)
+	}
 	.chatbox
-		{
-			width:500px;
-			height:600px;
-			min-height:400px;
-			background: white;
-			padding:20px;
-			margin:20px auto auto 30px;
-			box-shadow: 0 3px #ccc;
-			
-		}
-		.chatlogs
-		{
-			padding:10px;
-			width: 90%;
-			height: 450px;
-			background: #eee;
-			overflow-y: scroll;
-		}
-		.chat
-		{
-			display:flex;
-			flex-flow: row wrap;
-			align-items: flex-start;
-			margin-bottom: 10px;
-		}
-		.chat .user-name
-		{
-			width: 50px;	
-			height:50px;
-			border-radius:50px;
-			background-color: white;
-		}
+	{
+		width:500px;
+		height:600px;
+		min-height:400px;
+		background: white;
+		padding:20px;
+		margin:20px auto auto 30px;
+		box-shadow: 0 3px #ccc;
 		
-		.chat .chat-message
-		{
-			width: 70%;	
-			padding: 10px;
-			margin: 5px 10px 0;
-			background-color: blue;
-		}
-		.chat-form 
-		{
-			display: flex;
-			align-items: flex-start;
-			margin-top: 20px;
-		}
-		#txtMSG
-		{
-			width:75%;
-			height: 50%;
-			border: 2px solid #eee;
-			border-radius: 3px;
-			resize:none;
-			padding: 10px;
-			font-size:18px;
-			color: #999;
-		}
-		.chat-form button
-		{
-			background: #1ddced;
-			padding: 5px;
-			font-size: 25px;
-			color: #fff;
-			border:none;
-			margin: 0 10px;
-			border-radius: 3px;
-			box-shadow: 0 3px 0 #0eb2c1;
-			cursor: pointer;
-		}
+	}
+	.chatlogs
+	{
+		padding:10px;
+		width: 90%;
+		height: 450px;
+		background: #eee;
+		overflow-y: scroll;
+	}
+	.chatlogs::-webkit-scrollbar 
+	{
+		width:10px;
+	}
+	.chatlogs::-webkit-scrollbar-thumb
+	{
+		border-radius: 6px;
+		background: rgba(0,0,0,.1)
+	}
+	.chat
+	{
+		display:flex;
+		flex-flow: row wrap;
+		align-items: flex-start;
+		margin-bottom: 10px;
+	}
+	.chat .user-name
+	{
+		color: blue;
+		font-weight: bold;
+		text-shadow:none;
+	}
+	
+	.chat .chat-message
+	{
+		width: 70%;	
+		padding: 10px;
+		margin: 5px 10px 0;
+		background-color: blue;
+	}
+	.chat-form 
+	{
+		display: flex;
+		align-items: flex-start;
+		margin-top: 20px;
+	}
+	#txtMSG
+	{
+		width:75%;
+		height: 50%;
+		border: 2px solid #eee;
+		border-radius: 3px;
+		resize:none;
+		padding: 10px;
+		font-size:18px;
+		color: #999;
+	}
+	.chat-form button
+	{
+		background: #1ddced;
+		padding: 5px;
+		font-size: 25px;
+		color: #fff;
+		border:none;
+		margin: 0 10px;
+		border-radius: 3px;
+		box-shadow: 0 3px 0 #0eb2c1;
+		cursor: pointer;
+	}
 	</style>
   </head>
 
@@ -130,7 +143,11 @@
     <div class="row">
 		<div class="chatbox col-xs-6">
 			<div class="chatlogs" id="chatlogs">
+				<div class=chat>
+				<div class=user-name>System: </div>
+				<p class=chat-message>To change username, enter the new name on the textarea and click on change name button</p></div>
 				
+			
 			</div>
 		
 			<div class="chat-form">
@@ -140,13 +157,14 @@
 			</div>
 		</div>
 			
-		<div class="col-xs-6 " style="overflow-y: scroll; min-height: 50%; width:63%;">
-		<table style="width:100%; ">
+		<div class="col-xs-6 " style="width:60%;">
+		<table style="width:100%; height: 100%;">
+			<thead>
 			<button content="name" id="btnModal" class="btn btn-lg btn-default" data-toggle="modal" data-target="#myModal">Upload</button> 
-			<div >
+			</thead>
+			<tbody style="display: block; height: 100px; overflow-y: auto;">
 				${files}
-
-			</div>
+			</tbody>
 		</table>	
 		</div>
     </div>
@@ -159,9 +177,16 @@
 	<script>
 		allowChange=true;
 		usr="";
-		
+		window.onresize = function(event) 
+		{
+			var size=window.innerHeight-100;
+			$('table tbody').css('height', size+'px');
+		}
 		function setupChat() 
 		{
+			var size=window.innerHeight-100;
+			$('table tbody').css('height', size+'px');
+			
 		      var updateInterval = 1000;
 		      window.setInterval(UpdateChat,updateInterval);
 		      user=document.cookie;
@@ -226,6 +251,7 @@
 					document.cookie = "username="+name;
 				}
 		}
+
 	</script>
   </body>
 </html>
