@@ -4,11 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
-
+   
     <title>Room {$id}</title>
 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -44,16 +40,14 @@
 		width:500px;
 		height:600px;
 		min-height:400px;
-		background: white;
+		background: rgba(0,0,0,0);
 		padding:20px;
 		margin:20px auto auto 30px;
-		box-shadow: 0 3px #ccc;
-		
 	}
 	.chatlogs
 	{
 		padding:10px;
-		width: 90%;
+		width: 100%;
 		height: 450px;
 		background: #eee;
 		overflow-y: scroll;
@@ -139,6 +133,18 @@
 	  </div>
 	</div>
 	
+	<div class="container">
+	  <div class="modal fade" id="myModalURL" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body" id="modalContent" >
+					  <p>Save your room url, it's the only way to access it again</p> 
+				</div>
+			</div>
+		</div>
+	  </div>
+	</div>
+	
     <div class="site-wrapper">
     <div class="row">
 		<div class="chatbox col-xs-6">
@@ -160,7 +166,7 @@
 		<div class="col-xs-6 " style="width:60%;">
 		<table style="width:100%; height: 100%;">
 			<thead>
-			<button content="name" id="btnModal" class="btn btn-lg btn-default" data-toggle="modal" data-target="#myModal">Upload</button> 
+			<button id="btnModal" class="btn btn-lg btn-default" data-toggle="modal" data-target="#myModal">Upload</button> 
 			</thead>
 			<tbody style="display: block; height: 100px; overflow-y: auto;">
 				${files}
@@ -170,11 +176,9 @@
     </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-	<script>
+   	<script>
 		allowChange=true;
 		usr="";
 		window.onresize = function(event) 
@@ -186,9 +190,9 @@
 		{
 			var size=window.innerHeight-100;
 			$('table tbody').css('height', size+'px');
-			
-		      var updateInterval = 1000;
-		      window.setInterval(UpdateChat,updateInterval);
+			//$('#myModalURL').modal('show');
+		    var updateInterval = 1000;
+		     window.setInterval(UpdateChat,updateInterval);
 		      user=document.cookie;
 			  usr=user.substring(user.indexOf("=")+1,user.length-user.lastIndexOf(";"));
 			  if(usr=="")
@@ -202,6 +206,7 @@
 		{
 			var msg="";
 			msg=$("#txtMSG").val();
+			$("#txtMSG").val("");
 			$.ajax({
 				type : "POST",
 				url : '/savemessage',
@@ -211,12 +216,14 @@
 		
 		function UpdateChat()
 		{
-			element = document.getElementById("chatlogs");
-			msgCount =element.getElementsByClassName('chat-message').length.toString();
+			//element = document.getElementById("chatlogs");
+			//msgCount =element.getElementsByClassName('chat-message').length.toString();
+			var now = new Date();
+			now.setSeconds(now.getSeconds() - 0.5);
 			$.ajax({
 				type : "POST",
 				url : '/getmessage',
-				data:{"msgCount":new Date().toISOString().slice(0, 19).replace('T', ' ')},
+				data:{"msgCount":now.toISOString().slice(0, 19).replace('T', ' ')},
 				dataType: "json",
 		        contentType: "application/json;charset=utf-8",
 		        success: function(data)
@@ -235,7 +242,7 @@
 					{
 						document.getElementById("chatlogs").innerHTML +=
 							"<div class=\"chat\">"+
-							"<div class=\"user-name\">"+data+"</div>" +
+							"<div class=\"user-name\">"+data+": </div>" +
 							"<p class=\"chat-message\">"+json[info][data]+"</p></div>";
 					}
 					
@@ -249,6 +256,19 @@
 					allowChange=false;
 					name=$("#txtMSG").val();
 					document.cookie = "username="+name;
+					$("#txtMSG").val("");
+					usr=name;
+					document.getElementById("chatlogs").innerHTML +=
+						"<div class=\"chat\">"+
+						"<div class=\"user-name\">"+"System: "+"</div>" +
+						"<p class=\"chat-message\">"+"Username changed to: "+name+"</p></div>";
+				}
+			else
+				{
+				document.getElementById("chatlogs").innerHTML +=
+					"<div class=\"chat\">"+
+					"<div class=\"user-name\">"+"System: "+"</div>" +
+					"<p class=\"chat-message\">"+"Username can't be changed</p></div>";
 				}
 		}
 

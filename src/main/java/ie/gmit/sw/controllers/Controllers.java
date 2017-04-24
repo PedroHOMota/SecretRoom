@@ -42,7 +42,6 @@ public class Controllers
   @RequestMapping(value = "/r/*/*")
   public void getFile(HttpServletRequest request,HttpServletResponse response) throws IOException, SQLException
   {
-	  System.out.println("Download");
 	  String fileName=request.getRequestURI().toString();
 	  fileName=fileName.substring(fileName.lastIndexOf("/")+1);
 
@@ -51,6 +50,7 @@ public class Controllers
       response.addHeader("Content-Disposition", "attachment; filename="+fileName);
       
       byte[] file =srv.GetFile(roomID, fileName);
+      System.out.println(file.length);
       try
       {
     	  response.getOutputStream().write(file);
@@ -86,7 +86,6 @@ public class Controllers
 		 return "redirect:/";
 	  
 	 ArrayList<String> listOfFiles=srv.GetAllFilesName(roomID);
-	 System.out.println(listOfFiles.size());
 	 String tst="<h1>  </h1>";
 	 for (int i = 0; i < listOfFiles.size(); i++) 
 	 {

@@ -27,7 +27,10 @@ public class DAO
 			mysqlDS.setUser("root");
 			mysqlDS.setPassword("3110");
 
-			
+			/*mysqlDS.setURL("jdbc:mysql: URL to database such as //localhost:3306/secretroom");
+			mysqlDS.setUser("Database user");
+			mysqlDS.setPassword("Database Password");*/
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -147,7 +150,7 @@ public class DAO
 		{
 			Connection con=mysqlDS.getConnection();
 			
-			PreparedStatement stmt = con.prepareStatement("Select message, name FROM messages m Where m.RID Like "+roomID+" AND m.Date > \""+date+"\"");
+			PreparedStatement stmt = con.prepareStatement("Select message, name FROM messages m Where m.RID Like "+roomID+" AND m.Date >= \""+date+"\"");
 			rs=stmt.executeQuery();
 		}catch(Exception e)
 		{
@@ -157,7 +160,6 @@ public class DAO
 		{
 			Map<String, String> msgs = new HashMap<String, String>();
 			
-			System.out.println(rs.getString("name")+" "+rs.getString("message"));
 			msgs.put(rs.getString("name"), rs.getString("message"));
 			listMsgs.add(msgs);
 		}

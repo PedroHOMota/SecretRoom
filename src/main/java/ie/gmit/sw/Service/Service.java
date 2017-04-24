@@ -1,6 +1,7 @@
 package ie.gmit.sw.Service;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -34,6 +35,9 @@ public class Service {
 	public byte[] GetFile(String room,String fileName) throws IOException, SQLException
 	{
 		byte[] file;
+		
+		fileName=fileName.replaceAll("%20", " ");
+		System.out.println(fileName);
 		file=dao.GetFile(fileName, room);
 		if(file==null)
 			return null;
@@ -60,11 +64,14 @@ public class Service {
 	
 	public void SaveMessage(String message,String name, String roomID,String date) throws ParseException
 	{
+		System.out.println("saving msg: "+date);
 		dao.SaveMessage(roomID, message, name,date);
 	}
 	
 	public ArrayList<Map<String, String>> GetMessages(String roomID,String date) throws SQLException, ParseException
 	{
+		System.out.println("getting msg: "+date);
+		
 		ArrayList<Map<String, String>> a= dao.GetAllMessages(roomID, date);
 		for(Map<String, String> item : a)
 		{
