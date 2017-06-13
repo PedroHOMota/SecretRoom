@@ -112,9 +112,7 @@ public class Controllers
   @RequestMapping(value = "/savemessage", method = RequestMethod.POST)
   public void SaveMessage(String msg, String user, String date) throws IOException, ParseException
   {
-	 System.out.println(date);
-	 srv.SaveMessage(msg, user, roomID, date); 
-	
+	srv.SaveMessage(msg, user, roomID, date); 
   }
   
   @ResponseBody
@@ -122,19 +120,21 @@ public class Controllers
   public String GetMessage(@RequestBody String msgCount) throws IOException, SQLException, ParseException
   {
 	 msgCount=msgCount.substring(9);
-	 System.out.println(msgCount);
 	 msgCount=msgCount.replace("+", " ");
 	 msgCount=msgCount.replace("%3A", ":");
-	 System.out.println(msgCount);
 	 ArrayList<Map<String, String>> msgs = srv.GetMessages(roomID,msgCount);
 	
 	 if(msgs==null)
 		 return "";
-	 System.out.println(msgs.size());
+
 	 ObjectMapper mapper = new ObjectMapper();
 	 String rsp=mapper.writeValueAsString(msgs);
-	 System.out.println(rsp);
 	 return rsp;
   }
-  
+  @RequestMapping("error")
+  public String error()
+  {
+	  return "error";
+  }
+
 }

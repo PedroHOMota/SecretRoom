@@ -24,7 +24,6 @@ public class Service {
 		//Use the epoch time  as seed to make sure all generated numbers will be equal
 		Random rdm=new Random(Instant.now().toEpochMilli());
 		int id=rdm.nextInt();
-		System.out.println(id);
 		if(dao.CreateRoom(id))
 		{
 			return id;
@@ -64,14 +63,11 @@ public class Service {
 	
 	public void SaveMessage(String message,String name, String roomID,String date) throws ParseException
 	{
-		System.out.println("saving msg: "+date);
 		dao.SaveMessage(roomID, message, name,date);
 	}
 	
 	public ArrayList<Map<String, String>> GetMessages(String roomID,String date) throws SQLException, ParseException
 	{
-		System.out.println("getting msg: "+date);
-		
 		ArrayList<Map<String, String>> a= dao.GetAllMessages(roomID, date);
 		for(Map<String, String> item : a)
 		{

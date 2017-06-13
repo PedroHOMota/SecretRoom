@@ -190,7 +190,7 @@
 		{
 			var size=window.innerHeight-100;
 			$('table tbody').css('height', size+'px');
-			//$('#myModalURL').modal('show');
+			$('#myModalURL').modal('show');
 		    var updateInterval = 1000;
 		     window.setInterval(UpdateChat,updateInterval);
 		      user=document.cookie;

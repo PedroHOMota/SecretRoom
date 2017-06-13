@@ -24,13 +24,8 @@ public class DAO
 		try {
 			mysqlDS = new MysqlDataSource();
 			mysqlDS.setURL("jdbc:mysql://localhost:3306/secretroom");
-			mysqlDS.setUser("root");
-			mysqlDS.setPassword("3110");
-
-			/*mysqlDS.setURL("jdbc:mysql: URL to database such as //localhost:3306/secretroom");
-			mysqlDS.setUser("Database user");
-			mysqlDS.setPassword("Database Password");*/
-
+			mysqlDS.setUser("");
+			mysqlDS.setPassword("");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -41,7 +36,6 @@ public class DAO
 	
 	public boolean SaveFile(InputStream file, String name, String roomID) throws IOException
 	{
-		System.out.println("entrou db");
 		try
 		{
 			Connection con = mysqlDS.getConnection();
@@ -69,7 +63,6 @@ public class DAO
 		{
 			Connection con = mysqlDS.getConnection();
 			PreparedStatement stmt = con.prepareStatement("select file from files f where f.name like \""+fileName+"\" and f.rid like "+roomID);
-			System.out.println(stmt.toString());		
 			rs = stmt.executeQuery();
 			rs.next();
 
@@ -128,7 +121,6 @@ public class DAO
 	{
 		try
 		{
-			//System.out.println("INSERT INTO messages VALUES(\""+message+"\","+roomID+",\""+name+"\" "+date.toString());
 			Connection con=mysqlDS.getConnection();
 			PreparedStatement stmt = con.prepareStatement("INSERT INTO messages VALUES(\""+message+"\","+roomID+",\""+name+"\",\""+date+"\")");
 			//stmt.setDate(1, date);
